@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <title>Fatura — NV Imóveis</title>
+
+    <!-- Bootstrap 3 -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 14px;
+            background: #f4f4f4;
+            color: #333;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        h3 {
+            font-weight: 700;
+            font-size: 1.7rem;
+        }
+
+        /* ===== PAGE WRAPPER ===== */
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 16px 60px;
+        }
+
+        /* ===== INVOICE CONTAINER ===== */
+        .invoice-container {
+            max-width: 868px;
+        }
+
+        .invoice-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .invoice-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .invoice-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .invoice-header-right {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            max-width: 160px;
+        }
+
+        .client-logo {
+            max-width: 100%;
+            max-height: 80px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .invoice-title-block {
+            margin-bottom: 4px;
+        }
+
+        .invoice-label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .client-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #222;
+            margin: 0;
+        }
+
+        .client-doc {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #555;
+            margin: 0;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            padding: 18px 24px 14px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        header .header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        header .header-label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        header .header-value {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .client-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .account-logo {
+            text-align: right;
+        }
+
+        .account-logo img {
+            max-height: 80px;
+            margin-top: 4px;
+        }
+
+        /* ===== SEPARATOR LINE ===== */
+        .separate-line {
+            border: 0;
+            border-top: 2px solid #ddd;
+            margin: 0;
+        }
+
+        /* ===== STATUS BADGE ===== */
+        .invoice-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 24px;
+            border-left: 5px solid transparent;
+        }
+
+        .badge-paga {
+            background: #f6f6f6;
+            border-left-color: #1acc27;
+        }
+
+        .badge-pendente {
+            background: #fff2a4;
+            border-left-color: #e03e20;
+        }
+
+        .badge-pendente .due-date-label,
+        .badge-pendente .due-date-value {
+            color: #e03e20;
+        }
+
+        .badge-cancelada {
+            background: #f0f0f0;
+            border-left-color: #aaa;
+        }
+
+        .invoice-badge-value {
+            font-size: 14pt;
+            font-weight: 700;
+        }
+
+        .badge-paga .invoice-badge-value {
+            color: #1acc27;
+        }
+
+        .badge-pendente .invoice-badge-value {
+            color: #e03e20;
+        }
+
+        .badge-cancelada .invoice-badge-value {
+            color: #999;
+        }
+
+        .due-date-block {
+            text-align: right;
+        }
+
+        .due-date-label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .due-date-value {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #c9a227;
+        }
+
+        /* ===== INVOICE INFO ===== */
+        .invoice-info {
+            padding: 14px 24px 0;
+        }
+
+        .invoice-info h6 {
+            margin: 6px 0;
+            font-size: 1.1rem;
+            color: #8d8d8d;
+            font-weight: 400;
+        }
+
+        /* ===== INVOICE DETAILS ===== */
+        .invoice-details {
+            padding: 16px 24px 0;
+        }
+
+        .invoice-details h3 {
+            color: #1a73c8;
+            font-size: 1.4rem;
+            margin: 0 0 8px;
+        }
+
+        .invoice-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+
+        .invoice-details-table thead {
+            border-bottom: 2px solid #ddd;
+        }
+
+        .invoice-details-table thead th {
+            padding: 4px 10px 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .th-value {
+            text-align: right;
+        }
+
+        .invoice-details-table tbody tr td {
+            padding: 8px 10px;
+        }
+
+        .invoice-details-table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .invoice-item {
+            font-size: 1.05rem;
+            vertical-align: middle;
+        }
+
+        .td-value {
+            text-align: right;
+        }
+
+        .invoice-total {
+            font-weight: 700;
+            height: 42px;
+            border-top: 2px solid #ddd;
+            vertical-align: middle;
+        }
+
+        .invoice-total td {
+            text-align: right;
+        }
+
+        .invoice-total strong {
+            margin-right: 15px;
+        }
+
+        /* ===== NOTES ===== */
+        .invoice-notes {
+            margin: 12px 24px;
+            padding: 10px 14px;
+            background: #f9f9f9;
+            border-left: 3px solid #c9a227;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* ===== PAYMENT SECTION ===== */
+        .invoice-payment {
+            padding: 0 24px 0;
+        }
+
+        .payment-title-container {
+            display: flex;
+            margin-top: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .payment-title-container h3 {
+            margin: 0;
+            color: #1a73c8;
+            font-size: 1.4rem;
+        }
+
+        /* ===== TABS ===== */
+        .payment-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .payment-tab {
+            padding: 10px 22px;
+            border-radius: 6px 6px 0 0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            background: #f4f4f4;
+            color: #666;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .payment-tab.active {
+            background: #fff;
+            color: #1a73c8;
+        }
+
+        .payment-tab:hover:not(.active) {
+            background: #eee;
+        }
+
+        .tab-panel {
+            display: none;
+            padding: 20px 0 10px;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ===== BOLETO ===== */
+        .barcode-section {
+            display: flex;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .barcode {
+            font-size: 1.5rem;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 8px 0 0 8px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 4px 12px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #333;
+            letter-spacing: 0.04em;
+        }
+
+        .btn-copy {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #1acc27;
+            border-radius: 0 8px 8px 0;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            width: 20%;
+            border: none;
+            transition: background 0.2s;
+            gap: 6px;
+        }
+
+        .btn-copy:hover {
+            background: #15b521;
+        }
+
+        .boleto-info {
+            margin-top: 12px;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* ===== PIX QR CODE ===== */
+        .pix-qrcode-container {
+            width: 55%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px auto 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            background: #fafafa;
+        }
+
+        .pix-qrcode-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .pix-qrcode {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 16px;
+        }
+
+        .pix-qrcode img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        .pix-qrcode-topic {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .pix-paste-section {
+            display: flex;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .pix-paste {
+            font-size: 0.85rem;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 8px 0 0 8px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 4px 12px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #444;
+            letter-spacing: 0.01em;
+            background: #fff;
+        }
+
+        .pix-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 220px;
+            height: 220px;
+        }
+
+        /* ===== CREDIT CARD ===== */
+        .payment-form-fields {
+            padding: 0;
+            margin-top: 10px;
+            max-width: 460px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-control-invoice {
+            width: 100%;
+            height: 44px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            padding: 0 12px;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-control-invoice:focus {
+            border-color: #1a73c8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 200, 0.12);
+        }
+
+        .select-invoice {
+            appearance: none;
+            background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 12px center;
+        }
+
+        .save-card-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .btn-pay {
+            position: relative;
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #1a73c8 0%, #1561a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            overflow: hidden;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-pay:hover {
+            opacity: 0.92;
+        }
+
+        .btn-pay .button__progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: width 0.4s ease;
+        }
+
+        .btn-pay .button__text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .error-message {
+            color: #e03e20;
+            font-size: 1rem;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* ===== AUTH ===== */
+        .invoice-auth {
+            padding: 18px 24px;
+            font-size: 1rem;
+            color: #444;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .invoice-auth a {
+            color: #1a73c8;
+            word-break: break-all;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 18px 24px 22px;
+            border-top: 1px solid #ececec;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        footer a {
+            color: #1a73c8;
+        }
+
+        /* ===== POWERED BY ===== */
+        .powered-by {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        /* ===== ERROR PAGE ===== */
+        .error-page {
+            text-align: center;
+            padding: 80px 24px;
+            color: #888;
+        }
+
+        .error-page i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+            opacity: 0.3;
+        }
+
+        .error-page h2 {
+            font-size: 1.3rem;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 18px;
+            padding: 10px 22px;
+            background: #1a73c8;
+            color: #fff;
+            border-radius: 7px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* ===== TOAST ===== */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1acc27;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .page-wrapper {
+                padding: 12px 6px 40px;
+            }
+
+            .invoice-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .invoice-card {
+                border-radius: 8px;
+            }
+
+            /* Header */
+            .invoice-header {
+                padding: 16px 14px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .invoice-header-right {
+                max-width: 100px;
+            }
+
+            .client-name {
+                font-size: 1.3rem;
+                word-break: break-word;
+            }
+
+            .client-doc {
+                font-size: 0.95rem;
+            }
+
+            /* Badge / Status */
+            .invoice-badge {
+                padding: 10px 14px;
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .invoice-badge-value {
+                font-size: 12pt;
+            }
+
+            .due-date-value {
+                font-size: 13pt;
+            }
+
+            /* Invoice Info */
+            .invoice-info {
+                padding: 10px 14px 0;
+            }
+
+            .invoice-info h6 {
+                font-size: 0.9rem;
+                word-break: break-all;
+            }
+
+            /* Invoice Details / Table */
+            .invoice-details {
+                padding: 12px 14px 0;
+            }
+
+            .invoice-details h3 {
+                font-size: 1.15rem;
+            }
+
+            .invoice-details-table thead th {
+                padding: 4px 6px 8px;
+                font-size: 0.85rem;
+            }
+
+            .invoice-details-table tbody tr td {
+                padding: 6px;
+            }
+
+            .invoice-item {
+                font-size: 0.88rem;
+            }
+
+            .invoice-total strong {
+                margin-right: 6px;
+            }
+
+            /* Notes */
+            .invoice-notes {
+                margin: 10px 14px;
+                padding: 8px 10px;
+                font-size: 0.82rem;
+            }
+
+            /* Payment Section */
+            .invoice-payment {
+                padding: 0 14px;
+            }
+
+            .payment-title-container {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .payment-title-container h3 {
+                font-size: 1.1rem;
+            }
+
+            .payment-title-container img {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            /* Tabs */
+            .payment-tabs {
+                flex-wrap: wrap;
+            }
+
+            .payment-tab {
+                flex: 1 1 calc(50% - 4px);
+                justify-content: center;
+                padding: 9px 8px;
+                font-size: 0.88rem;
+            }
+
+
+
+            /* Boleto */
+            .barcode-section {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .barcode {
+                width: 100%;
+                border-radius: 8px 8px 0 0;
+                font-size: 1rem;
+                height: 44px;
+            }
+
+            .barcode-section .btn-copy {
+                width: 100%;
+                border-radius: 0 0 8px 8px;
+                height: 44px;
+            }
+
+            /* Credit Card */
+            .payment-form-fields {
+                max-width: 100%;
+            }
+
+            /* Auth */
+            .invoice-auth {
+                padding: 14px;
+                font-size: 0.85rem;
+            }
+
+            /* Footer */
+            footer {
+                padding: 14px;
+                font-size: 0.85rem;
+            }
+
+            /* Header section from old template */
+            header {
+                padding: 14px;
+            }
+
+            header .header-row {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .account-logo {
+                text-align: left;
+            }
+
+            /* Powered by */
+            .powered-by {
+                font-size: 10px;
+                padding: 0 10px;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .client-name {
+                font-size: 1.1rem;
+            }
+
+            .invoice-badge-value {
+                font-size: 11pt;
+            }
+
+            .due-date-value {
+                font-size: 12pt;
+            }
+
+
+
+            .invoice-info h6 {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <div class="invoice-container" id="invoice-root">
+            <div style="text-align:center;padding:60px;color:#aaa;">
+                <i class="fa fa-spinner fa-spin" style="font-size:2rem;"></i>
+                <p style="margin-top:14px;">Carregando fatura...</p>
+            </div>
+        </div>
+        <div class="powered-by" id="powered-by-text">NV Imóveis &copy; 2026</div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // ─── Helpers ─────────────────────────────────────────────────────────────
+        let toastTimer;
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = '✓ ' + msg;
+            el.className = 'show';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.className = '', 2200);
+        }
+
+        function copyCode(id) {
+            const el = document.getElementById(id);
+            const text = el.innerText || el.textContent;
+            navigator.clipboard.writeText(text)
+                .then(() => toast('Copiado!'))
+                .catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = text; document.body.appendChild(ta); ta.select();
+                    document.execCommand('copy'); ta.remove(); toast('Copiado!');
+                });
+        }
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.payment-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function formatCardNumber(input) {
+            let v = input.value.replace(/\D/g, '').substring(0, 16);
+            input.value = v.replace(/(.{4})/g, '$1 ').trim();
+        }
+
+        function formatExpiry(input) {
+            let v = input.value.replace(/\D/g, '').substring(0, 4);
+            input.value = v.length >= 3 ? v.substring(0, 2) + '/' + v.substring(2) : v;
+        }
+
+        // ─── Veno Payments Config ────────────────────────────────────────────────
+        function getVenoConfig() {
+            try {
+                return JSON.parse(localStorage.getItem('nv_veno_config')) || null;
+            } catch (_) { return null; }
+        }
+
+
+
+
+
+        // ─── Credit Card ─────────────────────────────────────────────────────────
+        var payingInvoice = false;
+
+        function payCreditCard() {
+            if (payingInvoice) return;
+            const btn = document.getElementById('pay-credit-card-btn');
+            const err = document.getElementById('error-message');
+            err.textContent = '';
+
+            const num = document.getElementById('card-number').value.replace(/\s/g, '');
+            const name = document.getElementById('card-name').value.trim();
+            const exp = document.getElementById('card-expiration').value.trim();
+            const code = document.getElementById('card-code').value.trim();
+
+            if (!num || num.length < 15) { err.textContent = 'Número do cartão inválido.'; return; }
+            if (!name) { err.textContent = 'Nome no cartão obrigatório.'; return; }
+            if (!exp || exp.length < 5) { err.textContent = 'Validade inválida.'; return; }
+            if (!code || code.length < 3) { err.textContent = 'CVV inválido.'; return; }
+
+            payingInvoice = true;
+            const prog = btn.querySelector('.button__progress');
+            const txt = btn.querySelector('.button__text');
+            prog.style.width = '35%';
+            txt.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
+            setTimeout(() => {
+                prog.style.width = '70%';
+                setTimeout(() => {
+                    prog.style.width = '100%';
+                    txt.innerHTML = '<i class="fa fa-check"></i> Pagamento efetuado!';
+                    payingInvoice = false;
+                }, 700);
+            }, 600);
+        }
+
+        // ─── PIX: Chamar Edge Function e renderizar QR Code ───────────────────
+        async function loadPixPanel(inv, total) {
+            const qrImg = document.getElementById('pix-qr-img');
+            const qrSpinner = document.getElementById('pix-qr-spinner');
+            const pixCodeEl = document.getElementById('pix-code');
+            if (!qrImg || !pixCodeEl) return;
+
+            try {
+                const SUPABASE_URL = 'https://duuhuypxprwmvolexpnd.supabase.co';
+                const SUPABASE_ANON_KEY = 'sb_publishable_mWsAUGvAvCHydSHqSjrJaQ_01krsnx5';
+
+                const resp = await fetch(`${SUPABASE_URL}/functions/v1/pagnet_pix`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({ amount: Math.round(total * 100) })
+                });
+
+                if (!resp.ok) {
+                    const errText = await resp.text();
+                    console.warn('[PIX] Erro HTTP', resp.status, errText);
+                    pixCodeEl.textContent = 'Erro ao gerar PIX. Tente novamente.';
+                    if (qrSpinner) qrSpinner.style.display = 'none';
+                    return;
+                }
+
+                const data = await resp.json();
+                // Campo QR Code: pix.qrcode ou pix.qrCode ou pix.qr_code
+                const pixCode = data.pix && (data.pix.qrcode || data.pix.qrCode || data.pix.qr_code);
+
+                if (pixCode) {
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=${encodeURIComponent(pixCode)}`;
+                    qrImg.src = qrUrl;
+                    qrImg.style.display = 'block';
+                    if (qrSpinner) qrSpinner.style.display = 'none';
+                    pixCodeEl.textContent = pixCode;
+                } else {
+                    console.warn('[PIX] Resposta sem QR code:', data);
+                    pixCodeEl.textContent = 'QR Code não disponível.';
+                    if (qrSpinner) qrSpinner.style.display = 'none';
+                }
+            } catch (err) {
+                console.warn('[PIX] Falha na requisição:', err);
+                pixCodeEl.textContent = 'Erro de conexão. Tente novamente.';
+                if (qrSpinner) qrSpinner.style.display = 'none';
+            }
+        }
+
+        // ─── Render ──────────────────────────────────────────────────────────────
+        function renderInvoice(inv) {
+            const isPending = inv.status === 'pendente';
+            const paidText = inv.status === 'paga' ? 'Fatura paga.' : '';
+            const currentUrl = window.location.href;
+            const badgeClass = 'badge-' + inv.status;
+            const badgeLabel = NV.STATUS_LABEL[inv.status] || inv.status;
+
+            const addressFull = [inv.address, inv.addressNumber, inv.addressComplement, inv.addressNeighborhood, inv.addressCity, inv.addressState]
+                .filter(Boolean).join(', ');
+
+            const refStr = inv.periodFrom && inv.periodTo
+                ? `${NV.formatDate(inv.periodFrom)} a ${NV.formatDate(inv.periodTo)}`
+                : '';
+
+            document.title = `Fatura — ${inv.clientName} — NV Imóveis`;
+
+            // Total (valor principal + itens adicionais)
+            const additionalItems = inv.additionalItems || [];
+            const total = (parseFloat(inv.value) || 0) + additionalItems.reduce((s, it) => s + (parseFloat(it.value) || 0), 0);
+
+
+
+            // Método de pagamento
+            const pm = (inv.paymentMethod || 'pix').toLowerCase();
+            const PM_LABEL = {
+                pix: 'Pix',
+                boleto: 'Boleto Bancário',
+                dinheiro: 'dinheiro',
+                transferencia: 'Transferência Bancária',
+                deposito: 'Depósito Bancário'
+            };
+            const pmLabel = PM_LABEL[pm] || pm;
+
+            // Ícone de cadeado dourado (inline SVG)
+            const lockIcon = `<img src="data:image/png;base64,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" style="width:52px;height:52px;flex-shrink:0;" alt="Pagamento seguro">`;
+
+            // Seção de pagamento — só aparece quando pendente
+            let paymentSection = '';
+            if (isPending) {
+                if (pm === 'pix') {
+                    paymentSection = `
+                    <div class="invoice-payment">
+                        <hr class="separate-line" style="margin-top:20px;margin-bottom:0;">
+                        <div class="payment-title-container">
+                            <h3>A Fatura será paga através de Pix</h3>
+                            ${lockIcon}
+                        </div>
+                        <div class="tab-panel active" id="tab-pix" style="display:block;padding-top:10px;">
+                            <div class="pix-qrcode-container">
+                                <div class="pix-qrcode-title">Escaneie o QR Code para pagar</div>
+                                <div class="pix-qrcode">
+                                    <div id="pix-qr-spinner" class="pix-loading">
+                                        <i class="fa fa-spinner fa-spin" style="font-size:2rem;color:#ccc;"></i>
+                                    </div>
+                                    <img src="" alt="QR Code Pix" id="pix-qr-img" style="display:none;width:100%;height:auto;border-radius:6px;">
+                                </div>
+                                <div class="pix-qrcode-topic">Ou use o código Pix Copia e Cola abaixo:</div>
+                            </div>
+                            <div class="pix-paste-section">
+                                <div class="pix-paste" id="pix-code"><i class="fa fa-spinner fa-spin" style="color:#ccc;"></i></div>
+                                <button class="btn-copy" onclick="copyCode('pix-code')">
+                                    <i class="fa fa-copy"></i> Copiar
+                                </button>
+                            </div>
+                            <p class="boleto-info" style="margin-top:10px;">Após o pagamento via Pix, a confirmação é instantânea.</p>
+                        </div>
+                    </div>`;
+                } else if (pm === 'boleto') {
+                    paymentSection = `
+                        <div class="invoice-payment">
+                            <hr class="separate-line" style="margin-top:20px;margin-bottom:0;">
+                                <div class="payment-title-container">
+                                    <h3>A Fatura será paga através de Boleto Bancário</h3>
+                                    ${lockIcon}
+                                </div>
+                                <div class="tab-panel active" style="display:block;padding-top:20px;">
+                                    <div class="barcode-section">
+                                        <div class="barcode" id="barcode-line">Boleto será gerado via integração bancária</div>
+                                        <button class="btn-copy" onclick="copyCode('barcode-line')">
+                                            <i class="fa fa-copy"></i> Copiar
+                                        </button>
+                                    </div>
+                                    <p class="boleto-info">Após o pagamento, a compensação pode levar até 3 dias úteis.</p>
+                                </div>
+                            </div>`;
+                } else {
+                    paymentSection = `
+                                <div class="invoice-payment">
+                                    <hr class="separate-line" style="margin-top:20px;margin-bottom:0;">
+                                        <div class="payment-title-container">
+                                            <h3>A Fatura será paga através de ${pmLabel}</h3>
+                                            ${lockIcon}
+                                        </div>
+                                    </div>`;
+                }
+            }
+
+            // Renderização Condicional
+            let invoiceContentSection = '';
+
+            if (inv.isCustomHtml && inv.rawHtmlTemplate) {
+                invoiceContentSection = `
+                                        <div style="padding: 16px 24px;">
+                                            ${inv.rawHtmlTemplate}
+                    </div>
+                        `;
+            } else {
+                invoiceContentSection = `
+                        <!-- INFO -->
+                        <div class="invoice-info">
+                            <h6>Identificação da fatura: ${inv.id}</h6>
+                        ${addressFull ? `<h6>Ref. a ${inv.invoiceType}${addressFull ? ' — ' + addressFull : ''}</h6>` : ''}
+                        ${refStr ? `<h6>Período de referência: ${refStr}</h6>` : ''}
+                    <h6>Data de emissão: ${NV.formatDate(inv.emissionDate)}</h6>
+                    </div>
+
+                    <!--DETALHES-->
+                        <div class="invoice-details">
+                            <h3>Detalhes da fatura</h3>
+                            <table class="invoice-details-table">
+                                <thead>
+                                    <tr><th>&nbsp;</th><th class="th-value">Valor</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="invoice-item">${inv.invoiceType}${refStr ? ' ref. ' + refStr : ''}</td>
+                                        <td class="invoice-item td-value">${NV.formatCurrency(inv.value)}</td>
+                                    </tr>
+                                    ${additionalItems.map(it => `
+                                <tr>
+                                    <td class="invoice-item">${it.desc}</td>
+                                    <td class="invoice-item td-value">${NV.formatCurrency(it.value)}</td>
+                                </tr>`).join('')}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="invoice-total">
+                                        <td></td>
+                                        <td><strong>Total</strong> ${NV.formatCurrency(total)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+            }
+
+            return `
+                        <!--HEADER-->
+            <div class="invoice-header">
+                <div class="invoice-header-left">
+                    <div class="invoice-title-block">
+                        <div class="invoice-label">Cliente</div>
+                        <h2 class="client-name">${inv.clientName}</h2>
+                    </div>
+                    ${!inv.isCustomHtml || inv.clientDoc !== 'N/A' ? `
+                    <div class="invoice-title-block">
+                        <div class="invoice-label">CPF/CNPJ</div>
+                        <h3 class="client-doc">${inv.clientDoc}</h3>
+                    </div>` : ''}
+                </div>
+                ${inv.clientLogo ? `
+                <div class="invoice-header-right">
+                    <img src="${inv.clientLogo}" alt="Logo Cliente" class="client-logo">
+                </div>` : ''}
+            </div>
+            
+
+            <hr class="separate-line">
+
+            <!-- BADGE STATUS -->
+            <div class="invoice-badge ${badgeClass}">
+                <div class="invoice-badge-value">${badgeLabel}</div>
+                <div class="due-date-block">
+                    <span class="due-date-label">Vencimento</span>
+                    <div class="due-date-value">${NV.formatDate(inv.dueDate)}</div>
+                </div>
+            </div>
+
+            ${invoiceContentSection}
+
+            ${inv.notes ? `<div class="invoice-notes"><strong>Obs:</strong> ${inv.notes}</div>` : ''}
+
+            <!-- PAGAMENTO -->
+            ${paymentSection}
+
+            <!-- AUTH -->
+            <div class="invoice-auth">
+                ${paidText ? `${paidText} Autenticação: ${inv.id}. ` : `Autenticação: ${inv.id}.`}<br>
+                Confirme a autenticidade desse documento em:
+                <a href="${currentUrl}" target="_blank">${currentUrl}</a>
+            </div>
+
+            <!-- FOOTER -->
+            <footer>
+                Em caso de dúvidas sobre cobranças e demais informações, entre em contato com a ${inv.companyName || 'NV Imóveis'}
+                através do e-mail: <a href="mailto:${inv.companyEmail || 'contato@nvimoveis.com.br'}">${inv.companyEmail || 'contato@nvimoveis.com.br'}</a>
+            </footer>`;
+        }
+
+        // ─── Init ──────────────────────────────────────────────────────────────────
+        async function init() {
+            // Support both #id=... (hash, server-safe) and ?id=... (query string)
+            const hash = window.location.hash; // e.g. "#id=xxxx"
+            const hashId = hash.startsWith('#id=') ? hash.slice(4) : null;
+            const params = new URLSearchParams(window.location.search);
+            const id = hashId || params.get('id');
+            const root = document.getElementById('invoice-root');
+
+            if (!id) {
+                root.innerHTML = `<div class="error-page">
+                    <i class="fa fa-file-o"></i>
+                    <h2>Nenhuma fatura informada</h2>
+                    <p>Acesse esta página através de um link válido.</p>
+                    <a href="admin.html" class="btn-back"><i class="fa fa-arrow-left"></i> Voltar ao Admin</a>
+                </div>`;
+                return;
+            }
+
+            const inv = await NV.getInvoice(id);
+
+            if (!inv) {
+                root.innerHTML = `<div class="error-page">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <h2>Fatura não encontrada</h2>
+                    <p>O link pode estar incorreto ou a fatura foi removida.</p>
+                    <a href="admin.html" class="btn-back"><i class="fa fa-arrow-left"></i> Voltar ao Admin</a>
+                </div>`;
+                return;
+            }
+
+            root.innerHTML = renderInvoice(inv);
+
+            // Atualizar rodapé "powered by" com dados da empresa
+            const poweredBy = document.getElementById('powered-by-text');
+            if (poweredBy) {
+                const cName = inv.companyName || 'NV Imóveis';
+                const cCreci = inv.companyCreci || '22510-J';
+                poweredBy.innerHTML = `${cName} &copy; 2026 &mdash; CRECI: ${cCreci}`;
+            }
+
+            // Se fatura pendente + pix: carregar QR Code via Edge Function
+            if (inv.status === 'pendente' && (inv.paymentMethod || 'pix').toLowerCase() === 'pix') {
+                const additionalItems = inv.additionalItems || [];
+                const total = (parseFloat(inv.value) || 0) +
+                    additionalItems.reduce((s, it) => s + (parseFloat(it.value) || 0), 0);
+                await loadPixPanel(inv, total);
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

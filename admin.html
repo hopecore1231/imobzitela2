@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — NV Imóveis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a227;
+            --gold-light: #f0d060;
+            --blue: #1a73c8;
+            --blue-dark: #1255a0;
+            --green: #1acc27;
+            --red: #e03e20;
+            --yellow-bg: #fff8d6;
+            --bg: #0f1117;
+            --bg2: #181c26;
+            --bg3: #1f2436;
+            --border: #2a3050;
+            --text: #eef1f8;
+            --text2: #9aa3bf;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            height: 64px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-logo {
+            height: 44px;
+        }
+
+        .topbar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        .topbar-title span {
+            color: var(--gold);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-count {
+            background: var(--gold);
+            color: #111;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* ── LAYOUT ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 0;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* ── FORM PANEL ── */
+        .form-panel {
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            padding: 28px 24px;
+            overflow-y: auto;
+            max-height: calc(100vh - 64px);
+            position: sticky;
+            top: 64px;
+        }
+
+        .form-panel h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── TABS ADMIN ── */
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+
+        .admin-tab {
+            padding: 10px 16px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: var(--text2);
+            transition: all 0.2s;
+        }
+
+        .admin-tab.active {
+            color: var(--gold);
+            border-color: var(--border);
+            background: rgba(201, 162, 39, 0.05);
+        }
+
+        .admin-tab:hover:not(.active) {
+            color: var(--text);
+        }
+
+        .admin-tab-content {
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s;
+        }
+
+        .admin-tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text2);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-row {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-row.cols-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-row.cols-3 {
+            grid-template-columns: 2fr 1fr 1fr;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%239aa3bf' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--gold) 0%, #a07a18 100%);
+            color: #111;
+            border: none;
+            border-radius: 9px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s, transform 0.15s;
+            margin-top: 6px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* ── LIST PANEL ── */
+        .list-panel {
+            padding: 28px 32px;
+            overflow-y: auto;
+        }
+
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .list-header h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .list-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 8px 14px 8px 36px;
+            font-size: 0.88rem;
+            width: 220px;
+            outline: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa3bf' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--gold);
+        }
+
+        .filter-select {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 8px 34px 8px 12px;
+            font-size: 0.88rem;
+            outline: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%239aa3bf' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            appearance: none;
+        }
+
+        /* ── STATS ROW ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .stat-value.gold {
+            color: var(--gold);
+        }
+
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-value.blue {
+            color: var(--blue);
+        }
+
+        /* ── INVOICE CARDS ── */
+        .invoices-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .invoice-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: start;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+
+        .invoice-card:hover {
+            border-color: var(--gold);
+            transform: translateX(2px);
+        }
+
+        .invoice-card.status-paga {
+            border-left: 4px solid var(--green);
+        }
+
+        .invoice-card.status-pendente {
+            border-left: 4px solid var(--red);
+        }
+
+        .invoice-card.status-cancelada {
+            border-left: 4px solid #555;
+        }
+
+        .card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .card-meta {
+            font-size: 0.82rem;
+            color: var(--text2);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .card-meta strong {
+            color: var(--text);
+        }
+
+        .card-tags {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .tag-pendente {
+            background: rgba(224, 62, 32, 0.18);
+            color: #ff7a5e;
+        }
+
+        .tag-paga {
+            background: rgba(26, 204, 39, 0.15);
+            color: #1acc27;
+        }
+
+        .tag-cancelada {
+            background: rgba(150, 150, 150, 0.15);
+            color: #999;
+        }
+
+        .tag-type {
+            background: rgba(26, 115, 200, 0.15);
+            color: #60aaff;
+        }
+
+        .card-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .card-due {
+            font-size: 0.8rem;
+            color: var(--text2);
+            text-align: right;
+            margin-top: 3px;
+            margin-bottom: 12px;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg3);
+            color: var(--text2);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-action.btn-green:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .btn-action.btn-red:hover {
+            border-color: #f55;
+            color: #f55;
+        }
+
+        .btn-action.btn-blue:hover {
+            border-color: #60aaff;
+            color: #60aaff;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--text2);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+            display: block;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #toast.success {
+            border-color: var(--green);
+        }
+
+        #toast.error {
+            border-color: var(--red);
+        }
+
+        /* ── SETTINGS PANEL ── */
+        .settings-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 14px;
+            margin-top: 20px;
+            background: rgba(201, 162, 39, 0.08);
+            border: 1px solid rgba(201, 162, 39, 0.25);
+            border-radius: 8px;
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: background 0.2s;
+        }
+
+        .settings-toggle:hover {
+            background: rgba(201, 162, 39, 0.15);
+        }
+
+        .settings-body {
+            display: none;
+            padding: 14px 0 4px;
+        }
+
+        .settings-body.open {
+            display: block;
+        }
+
+        .btn-save-cfg {
+            width: 100%;
+            padding: 11px;
+            background: linear-gradient(135deg, var(--gold) 0%, #a07a18 100%);
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-save-cfg:hover {
+            opacity: 0.88;
+        }
+
+        .cfg-status {
+            margin-top: 8px;
+            font-size: 11px;
+            text-align: center;
+            color: var(--text2);
+            min-height: 16px;
+        }
+
+        .cfg-status.ok {
+            color: #1acc27;
+        }
+
+        .cfg-status.err {
+            color: #ff7a5e;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .form-panel {
+                position: static;
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .list-panel {
+                padding: 20px 16px;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── TOPBAR ─────────────────────────────────────────────────────────────── -->
+    <header class="topbar">
+        <div class="topbar-brand">
+            <img class="topbar-logo"
+                src="https://lh3.googleusercontent.com/49QtzR1YTn_vWLo9c7SYmJSbEDhcBo1-_Np3_bBwCWd4MPTKFjAclYj0gV1UDjDAFtRgzGNcF655cXEWeeKiJdYCIHoIyiX4PY5kz8sA0bhHmOoIjr9opaO_"
+                alt="NV Imóveis">
+            <span class="topbar-title">Admin <span>· Gestão de Faturas</span></span>
+        </div>
+        <div class="topbar-actions">
+            <span class="badge-count" id="total-badge">0 faturas</span>
+        </div>
+    </header>
+
+    <!-- ── LAYOUT ─────────────────────────────────────────────────────────────── -->
+    <div class="layout">
+
+        <!-- ===== FORM PANEL ===== -->
+        <aside class="form-panel">
+            <h2><i class="fa fa-plus-circle"></i> Nova Fatura</h2>
+
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('padrao')">Padrão</button>
+                <button class="admin-tab" onclick="switchAdminTab('html')">Colar HTML</button>
+            </div>
+
+            <div id="preview-name"
+                style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.3);border-radius:8px;font-size:0.88rem;color:#c9a227;">
+                📄 Fatura para: <strong id="preview-name-value"></strong></div>
+
+            <form id="invoice-form" onsubmit="handleSubmit(event)" autocomplete="off">
+
+                <input type="hidden" id="creationMode" value="padrao">
+
+                <!-- ABA PADRÃO (CONVENCIONAL) -->
+                <div id="tab-padrao" class="admin-tab-content active">
+
+                    <!-- Imobiliária -->
+                    <div class="form-section">
+                        <div class="form-section-title">Dados da Imobiliária (Remetente)</div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Nome da Imobiliária</label>
+                                <input type="text" id="companyName" placeholder="Ex: NV Imóveis">
+                            </div>
+                            <div>
+                                <label>E-mail Corporativo</label>
+                                <input type="email" id="companyEmail" placeholder="contato@nvimoveis.com.br">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label>CRECI</label>
+                                <input type="text" id="companyCreci" placeholder="Ex: 22510-J">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cliente -->
+                    <div class="form-section">
+                        <div class="form-section-title">Dados do Cliente</div>
+                        <div class="form-row">
+                            <div>
+                                <label>Nome completo *</label>
+                                <input type="text" id="clientName" required placeholder="Ex: Angela de Araujo"
+                                    oninput="updatePreviewName(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>CPF / CNPJ *</label>
+                                <input type="text" id="clientDoc" required placeholder="000.000.000-00"
+                                    oninput="maskDoc(this)">
+                            </div>
+                            <div>
+                                <label>E-mail</label>
+                                <input type="email" id="clientEmail" placeholder="cliente@email.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label>Link da Logo da Imobiliária (Opcional)</label>
+                                <input type="url" id="clientLogo" placeholder="Ex: https://site.com/logo.png">
+                                <p style="font-size: 10px; color: var(--text2); margin-top: 4px;">
+                                    Se preenchido, a logo será exibida no canto superior direito da fatura do cliente.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Imóvel -->
+                    <div class="form-section">
+                        <div class="form-section-title">Endereço do Imóvel</div>
+                        <div class="form-row cols-3">
+                            <div>
+                                <label>Logradouro *</label>
+                                <input type="text" id="address" required placeholder="Rua Elydio Rodrigues Nunes">
+                            </div>
+                            <div>
+                                <label>Número</label>
+                                <input type="text" id="addressNumber" placeholder="298">
+                            </div>
+                            <div>
+                                <label>Compl.</label>
+                                <input type="text" id="addressComplement" placeholder="Casa 01">
+                            </div>
+                        </div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Bairro</label>
+                                <input type="text" id="addressNeighborhood" placeholder="Vila Arriete">
+                            </div>
+                            <div>
+                                <label>Cidade / UF</label>
+                                <input type="text" id="addressCity" placeholder="São Paulo / SP">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fatura -->
+                    <div class="form-section">
+                        <div class="form-section-title">Detalhes da Fatura</div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Descrição Principal *</label>
+                                <select id="invoiceType" required>
+                                    <option value="Aluguel">Aluguel</option>
+                                    <option value="Condomínio">Condomínio</option>
+                                    <option value="IPTU">IPTU</option>
+                                    <option value="Tarifa Bancária">Tarifa Bancária</option>
+                                    <option value="Seguro Fiança">Seguro Fiança</option>
+                                    <option value="Bonificação até o vencimento">Bonificação até o vencimento</option>
+                                    <option value="Venda">Venda</option>
+                                    <option value="Locação Comercial">Locação Comercial</option>
+                                    <option value="Taxa Administrativa">Taxa Administrativa</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Valor (R$) *</label>
+                                <input type="text" id="value" required placeholder="2.133,56"
+                                    oninput="maskCurrency(this)">
+                            </div>
+                        </div>
+
+                        <!-- Reposicionado Itens Adicionais para Melhor UX -->
+                        <div class="form-row" style="margin-top:-10px; margin-bottom: 12px;">
+                            <div
+                                style="background: #f8f9fa; border: 1px dashed #ccc; padding: 12px; border-radius: 6px;">
+                                <div
+                                    style="display:flex;align-items:center;justify-content:space-between; margin-bottom: 8px;">
+                                    <span
+                                        style="font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase;">
+                                        Acréscimos / Descontos (Condomínio, Seguro, IPTU...)
+                                    </span>
+                                </div>
+                                <div id="additional-items-list" style="margin-bottom: 10px;"></div>
+                                <button type="button" onclick="addAdditionalItem()"
+                                    style="width:100%;background:rgba(201,162,39,0.15);border:1px dashed rgba(201,162,39,0.4);color:#c9a227;border-radius:6px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer; transition: 0.2s;">
+                                    + Adicionar Acréscimo / Desconto
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Período — de</label>
+                                <input type="date" id="periodFrom">
+                            </div>
+                            <div>
+                                <label>Período — até</label>
+                                <input type="date" id="periodTo">
+                            </div>
+                        </div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Vencimento *</label>
+                                <input type="date" id="dueDate" required>
+                            </div>
+                            <div>
+                                <label>Status inicial</label>
+                                <select id="status">
+                                    <option value="pendente">Pendente</option>
+                                    <option value="paga">Paga</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Método de Pagamento</label>
+                                <select id="paymentMethod">
+                                    <option value="dinheiro">Dinheiro</option>
+                                    <option value="pix">Pix</option>
+                                    <option value="transferencia">Transferência Bancária</option>
+                                    <option value="deposito">Depósito Bancário</option>
+                                    <option value="boleto">Boleto</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Data de Emissão (Deixe vazio p/ Hoje)</label>
+                                <input type="date" id="emissionDate">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label>Observações</label>
+                                <textarea id="notes" placeholder="Informações adicionais..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- Fim tab padrao -->
+
+                <!-- ABA COLAR HTML -->
+                <div id="tab-html" class="admin-tab-content">
+                    <!-- Imobiliária -->
+                    <div class="form-section">
+                        <div class="form-section-title">Dados da Imobiliária (Remetente)</div>
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Nome da Imobiliária</label>
+                                <input type="text" id="htmlCompanyName" placeholder="Ex: NV Imóveis">
+                            </div>
+                            <div>
+                                <label>E-mail Corporativo</label>
+                                <input type="email" id="htmlCompanyEmail" placeholder="contato@nvimoveis.com.br">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label>CRECI</label>
+                                <input type="text" id="htmlCompanyCreci" placeholder="Ex: 22510-J">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">Importação de Fatura</div>
+
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Identificação / Título da Fatura *</label>
+                                <input type="text" id="htmlClientName" placeholder="Ex: Fatura Imobiliária X - João"
+                                    oninput="updatePreviewName(this.value)">
+                            </div>
+                            <div>
+                                <label>Link da Logo da Imobiliária (Opcional)</label>
+                                <input type="url" id="htmlClientLogo" placeholder="Ex: https://site.com/logo.png">
+                            </div>
+                        </div>
+
+                        <div class="form-row cols-2">
+                            <div>
+                                <label>Valor Total (R$) *</label>
+                                <input type="text" id="htmlValue" placeholder="0,00" oninput="maskCurrency(this)">
+                            </div>
+                            <div>
+                                <label>Vencimento *</label>
+                                <input type="date" id="htmlDueDate">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label>Cole o Código HTML da Fatura Original *</label>
+                                <textarea id="rawHtmlTemplate"
+                                    placeholder="&lt;div class=&quot;invoice-body&quot;&gt;...&lt;/div&gt;"
+                                    style="min-height: 250px; font-family: monospace; font-size: 11px;"></textarea>
+                                <p style="font-size: 10px; color: var(--text2); margin-top: 6px; line-height: 1.4;">
+                                    Cole a exata tabela ou DIV que contém o descritivo de itens da cobrança. Na tela
+                                    do cliente, esse HTML será injetado e complementado pelo seu box de pagamentos
+                                    na parte inferior.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fa fa-bolt"></i> Gerar Fatura
+                </button>
+            </form>
+
+        </aside>
+
+        <!-- ===== LIST PANEL ===== -->
+        <main class="list-panel">
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Faturas</div>
+                    <div class="stat-value blue" id="stat-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">A Receber</div>
+                    <div class="stat-value red" id="stat-pending">R$ 0,00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Recebido</div>
+                    <div class="stat-value green" id="stat-paid">R$ 0,00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Volume Total</div>
+                    <div class="stat-value gold" id="stat-volume">R$ 0,00</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="list-header">
+                <h2>Faturas</h2>
+                <div class="list-controls">
+                    <input type="text" class="search-input" id="search-input" placeholder="Buscar cliente..."
+                        oninput="renderList()">
+                    <select class="filter-select" id="filter-status" onchange="renderList()">
+                        <option value="">Todos os status</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="paga">Paga</option>
+                        <option value="cancelada">Cancelada</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="invoices-grid" id="invoices-grid">
+                <div class="empty-state">
+                    <i class="fa fa-file-invoice"></i>
+                    <p>Nenhuma fatura encontrada.<br>Crie uma pelo formulário ao lado.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ── TOAST ──────────────────────────────────────────────────────────────── -->
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // ─── Globais ─────────────────────────────────────────────────────────────
+        let toastTimer;
+        let editingInvoiceId = null;
+
+        // ─── Toast ───────────────────────────────────────────────────────────────
+        function toast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + msg;
+            el.className = `show ${type}`;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.className = '', 2800);
+        }
+
+        // ─── Currency mask ───────────────────────────────────────────────────────
+        function maskCurrency(input) {
+            let v = input.value.replace(/\D/g, '');
+            v = (parseInt(v) / 100).toFixed(2);
+            input.value = isNaN(v) ? '' : v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function maskDoc(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length <= 11) {
+                v = v.replace(/(\d{3})(\d)/, '$1.$2')
+                    .replace(/(\d{3})(\d)/, '$1.$2')
+                    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            } else {
+                v = v.replace(/(\d{2})(\d)/, '$1.$2')
+                    .replace(/(\d{3})(\d)/, '$1.$2')
+                    .replace(/(\d{3})(\d)/, '$1/$2')
+                    .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+            }
+            input.value = v;
+        }
+
+        // ─── Submit ──────────────────────────────────────────────────────────────
+        function switchAdminTab(tabId) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+
+            const activeTab = document.getElementById('tab-' + tabId);
+            activeTab.classList.add('active');
+            activeTab.style.display = 'flex';
+
+            document.querySelector(`.admin-tab[onclick*="${tabId}"]`).classList.add('active');
+            document.getElementById('creationMode').value = tabId;
+
+            // Altera validação
+            const isPadrao = tabId === 'padrao';
+
+            document.getElementById('clientName').required = isPadrao;
+            document.getElementById('clientDoc').required = isPadrao;
+            document.getElementById('address').required = isPadrao;
+            document.getElementById('value').required = isPadrao;
+            document.getElementById('dueDate').required = isPadrao;
+
+            document.getElementById('htmlClientName').required = !isPadrao;
+            document.getElementById('htmlValue').required = !isPadrao;
+            document.getElementById('htmlDueDate').required = !isPadrao;
+            document.getElementById('rawHtmlTemplate').required = !isPadrao;
+
+            // Reset preview
+            updatePreviewName(isPadrao ? document.getElementById('clientName').value : document.getElementById('htmlClientName').value);
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const mode = document.getElementById('creationMode').value;
+            let data = {};
+
+            if (mode === 'padrao') {
+                data = {
+                    isCustomHtml: false,
+                    companyName: document.getElementById('companyName').value.trim(),
+                    companyEmail: document.getElementById('companyEmail').value.trim(),
+                    companyCreci: document.getElementById('companyCreci').value.trim(),
+                    clientName: document.getElementById('clientName').value.trim(),
+                    clientDoc: document.getElementById('clientDoc').value.trim(),
+                    clientEmail: document.getElementById('clientEmail').value.trim(),
+                    clientLogo: document.getElementById('clientLogo').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    addressNumber: document.getElementById('addressNumber').value.trim(),
+                    addressComplement: document.getElementById('addressComplement').value.trim(),
+                    addressNeighborhood: document.getElementById('addressNeighborhood').value.trim(),
+                    addressCity: document.getElementById('addressCity').value.trim(),
+                    invoiceType: document.getElementById('invoiceType').value || 'Descrição',
+                    value: document.getElementById('value').value.replace(/\./g, '').replace(',', '.'),
+                    periodFrom: document.getElementById('periodFrom').value,
+                    periodTo: document.getElementById('periodTo').value,
+                    dueDate: document.getElementById('dueDate').value,
+                    emissionDate: document.getElementById('emissionDate').value || new Date().toISOString().split('T')[0],
+                    status: document.getElementById('status').value,
+                    paymentMethod: document.getElementById('paymentMethod').value,
+                    notes: document.getElementById('notes').value.trim(),
+                    additionalItems: getAdditionalItems(),
+                };
+            } else {
+                data = {
+                    isCustomHtml: true,
+                    companyName: document.getElementById('htmlCompanyName').value.trim(),
+                    companyEmail: document.getElementById('htmlCompanyEmail').value.trim(),
+                    companyCreci: document.getElementById('htmlCompanyCreci').value.trim(),
+                    clientName: document.getElementById('htmlClientName').value.trim(),
+                    clientLogo: document.getElementById('htmlClientLogo').value.trim(),
+                    value: document.getElementById('htmlValue').value.replace(/\./g, '').replace(',', '.'),
+                    dueDate: document.getElementById('htmlDueDate').value,
+                    rawHtmlTemplate: document.getElementById('rawHtmlTemplate').value.trim(),
+                    // Campos padrão exigidos pelo DB para não falhar
+                    clientDoc: 'N/A',
+                    invoiceType: 'Fatura HTML',
+                    status: 'pendente',
+                    paymentMethod: 'pix'
+                };
+            }
+
+            const submitBtn = document.querySelector('#invoice-form button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Salvando...';
+            submitBtn.disabled = true;
+
+            try {
+                if (editingInvoiceId) {
+                    const inv = await NV.updateInvoice(editingInvoiceId, data);
+                    if (inv) {
+                        toast(`Fatura de ${inv.clientName} atualizada com sucesso!`);
+                    } else {
+                        toast('Erro ao atualizar fatura.', 'error');
+                    }
+                    editingInvoiceId = null;
+                } else {
+                    const inv = await NV.createInvoice(data);
+                    if (inv) {
+                        toast(`Fatura de ${inv.clientName} gerada com sucesso!`);
+                    } else {
+                        toast('Erro ao gerar fatura.', 'error');
+                    }
+                }
+
+                document.getElementById('invoice-form').reset();
+                updatePreviewName('');
+                await renderList();
+            } catch (err) {
+                toast('Erro ao processar fatura: ' + err.message, 'error');
+            } finally {
+                submitBtn.innerHTML = '<i class="fa fa-bolt"></i> Gerar Fatura';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // ─── Edit Invoice ────────────────────────────────────────────────────────
+        async function editInvoice(id) {
+            const inv = await NV.getInvoice(id);
+            if (!inv) return;
+
+            editingInvoiceId = id;
+            document.querySelector('#invoice-form button[type="submit"]').innerHTML = '<i class="fa fa-save"></i> Salvar Alterações';
+
+            // Scroll to top
+            document.querySelector('.form-panel').scrollTop = 0;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (inv.isCustomHtml) {
+                switchAdminTab('html');
+                document.getElementById('htmlCompanyName').value = inv.companyName || '';
+                document.getElementById('htmlCompanyEmail').value = inv.companyEmail || '';
+                document.getElementById('htmlCompanyCreci').value = inv.companyCreci || '';
+                document.getElementById('htmlClientName').value = inv.clientName || '';
+                document.getElementById('htmlClientLogo').value = inv.clientLogo || '';
+                document.getElementById('htmlValue').value = NV.formatCurrency(inv.value).replace('R$', '').trim();
+                document.getElementById('htmlDueDate').value = inv.dueDate || '';
+                document.getElementById('rawHtmlTemplate').value = inv.rawHtmlTemplate || '';
+                updatePreviewName(inv.clientName);
+            } else {
+                switchAdminTab('padrao');
+                document.getElementById('companyName').value = inv.companyName || '';
+                document.getElementById('companyEmail').value = inv.companyEmail || '';
+                document.getElementById('companyCreci').value = inv.companyCreci || '';
+                document.getElementById('clientName').value = inv.clientName || '';
+                document.getElementById('clientDoc').value = inv.clientDoc || (inv.clientDoc === 'N/A' ? '' : inv.clientDoc);
+                document.getElementById('clientEmail').value = inv.clientEmail || '';
+                document.getElementById('clientLogo').value = inv.clientLogo || '';
+                document.getElementById('address').value = inv.address || '';
+                document.getElementById('addressNumber').value = inv.addressNumber || '';
+                document.getElementById('addressComplement').value = inv.addressComplement || '';
+                document.getElementById('addressNeighborhood').value = inv.addressNeighborhood || '';
+                document.getElementById('addressCity').value = inv.addressCity || '';
+
+                // Tratando o Select caso a opção customizada (antiga) não exista nas options atuais
+                const typeSelect = document.getElementById('invoiceType');
+                let foundOption = false;
+                for (let i = 0; i < typeSelect.options.length; i++) {
+                    if (typeSelect.options[i].value === inv.invoiceType) {
+                        foundOption = true;
+                        break;
+                    }
+                }
+                if (!foundOption && inv.invoiceType) {
+                    const newOpt = new Option(inv.invoiceType, inv.invoiceType);
+                    typeSelect.add(newOpt);
+                }
+                typeSelect.value = inv.invoiceType || 'Aluguel';
+
+                document.getElementById('value').value = NV.formatCurrency(inv.value).replace('R$', '').trim();
+                document.getElementById('periodFrom').value = inv.periodFrom || '';
+                document.getElementById('periodTo').value = inv.periodTo || '';
+                document.getElementById('dueDate').value = inv.dueDate || '';
+                document.getElementById('emissionDate').value = inv.emissionDate || '';
+                document.getElementById('status').value = inv.status || 'pendente';
+                document.getElementById('paymentMethod').value = inv.paymentMethod || 'pix';
+                document.getElementById('notes').value = inv.notes || '';
+
+                // Repopular itens adicionais usando a função unificada
+                const listEl = document.getElementById('additional-items-list');
+                listEl.innerHTML = '';
+                if (inv.additionalItems && inv.additionalItems.length > 0) {
+                    inv.additionalItems.forEach(item => {
+                        const valFmt = NV.formatCurrency(item.value).replace('R$', '').trim();
+                        addAdditionalItem(item.desc, valFmt);
+                    });
+                }
+
+                updatePreviewName(inv.clientName);
+            }
+        }
+
+        // ─── Render list ─────────────────────────────────────────────────────────
+        async function renderList() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const filterStatus = document.getElementById('filter-status').value;
+            let list = await NV.listInvoices();
+
+            if (search) {
+                list = list.filter(inv =>
+                    inv.clientName.toLowerCase().includes(search) ||
+                    inv.clientDoc.includes(search)
+                );
+            }
+            if (filterStatus) {
+                list = list.filter(inv => inv.status === filterStatus);
+            }
+
+            // Stats (always from full list)
+            const allInvoices = await NV.listInvoices();
+            updateStats(allInvoices);
+
+            const grid = document.getElementById('invoices-grid');
+            document.getElementById('total-badge').textContent =
+                allInvoices.length + ' fatura' + (allInvoices.length !== 1 ? 's' : '');
+
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="empty-state">
+                <i class="fa fa-search"></i>
+                <p>Nenhuma fatura encontrada.</p>
+            </div>`;
+                return;
+            }
+
+            grid.innerHTML = list.map(inv => {
+                const url = NV.generateInvoiceURL(inv.id);
+                const refStr = inv.periodFrom && inv.periodTo
+                    ? `${NV.formatDate(inv.periodFrom)} a ${NV.formatDate(inv.periodTo)}`
+                    : '';
+                const addressStr = [inv.address, inv.addressNumber, inv.addressComplement, inv.addressNeighborhood, inv.addressCity]
+                    .filter(Boolean).join(', ');
+
+                return `
+            <div class="invoice-card status-${inv.status}" id="card-${inv.id}">
+                <div>
+                    <div class="card-name">${inv.clientName}</div>
+                    <div class="card-meta">
+                        <strong>${inv.clientDoc}</strong>${inv.clientEmail ? ' · ' + inv.clientEmail : ''}<br>
+                        ${addressStr ? addressStr + '<br>' : ''}
+                        ${refStr ? 'Ref: ' + refStr : ''}
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag tag-${inv.status}">${NV.STATUS_LABEL[inv.status]}</span>
+                        <span class="tag tag-type">${inv.invoiceType}</span>
+                        ${inv.notes ? `<span class="tag" style="background:rgba(255,255,255,0.06);color:#aaa">📝 Obs</span>` : ''}
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <div class="card-value">${NV.formatCurrency(inv.value)}</div>
+                    <div class="card-due">Venc. ${NV.formatDate(inv.dueDate)}</div>
+                    <button class="btn-action btn-blue" onclick="copyLink('${url}')">
+                        <i class="fa fa-link"></i> Copiar link
+                    </button>
+                    <button class="btn-action" onclick="openFatura('${url}')">
+                        <i class="fa fa-eye"></i> Ver fatura
+                    </button>
+                    <button class="btn-action" onclick="editInvoice('${inv.id}')" style="color:#c9a227;border-color:rgba(201,162,39,0.5);">
+                        <i class="fa fa-edit"></i> Editar
+                    </button>
+                    ${inv.status !== 'paga' ? `
+                    <button class="btn-action btn-green" onclick="markPaid('${inv.id}')">
+                        <i class="fa fa-check"></i> Marcar paga
+                    </button>` : ''}
+                    ${inv.status === 'paga' ? `
+                    <button class="btn-action" onclick="markPending('${inv.id}')">
+                        <i class="fa fa-rotate-left"></i> Reverter
+                    </button>` : ''}
+                    <button class="btn-action btn-red" onclick="removeInvoice('${inv.id}')">
+                        <i class="fa fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>`;
+            }).join('');
+        }
+
+        function updateStats(all) {
+            const pending = all.filter(i => i.status === 'pendente');
+            const paid = all.filter(i => i.status === 'paga');
+            document.getElementById('stat-total').textContent = all.length;
+            document.getElementById('stat-pending').textContent =
+                NV.formatCurrency(pending.reduce((s, i) => s + i.value, 0));
+            document.getElementById('stat-paid').textContent =
+                NV.formatCurrency(paid.reduce((s, i) => s + i.value, 0));
+            document.getElementById('stat-volume').textContent =
+                NV.formatCurrency(all.reduce((s, i) => s + i.value, 0));
+        }
+
+        // ─── Actions ─────────────────────────────────────────────────────────────
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => toast('Link copiado!')).catch(() => {
+                prompt('Copie o link:', url);
+            });
+        }
+
+        function openFatura(url) {
+            window.open(url, '_blank');
+        }
+
+        async function markPaid(id) {
+            await NV.updateStatus(id, 'paga');
+            toast('Fatura marcada como paga ✓', 'success');
+            await renderList();
+        }
+
+        async function markPending(id) {
+            await NV.updateStatus(id, 'pendente');
+            toast('Status revertido para pendente.', 'success');
+            await renderList();
+        }
+
+        async function removeInvoice(id) {
+            if (!confirm('Tem certeza que deseja excluir esta fatura?')) return;
+            await NV.deleteInvoice(id);
+            toast('Fatura excluída.', 'error');
+            await renderList();
+        }
+
+        // ─── Itens Adicionais ──────────────────────────────────────────────────────
+        function addAdditionalItem(desc = '', value = '') {
+            const list = document.getElementById('additional-items-list');
+            const idx = list.children.length;
+            const row = document.createElement('div');
+            row.className = 'form-row cols-2';
+            row.style.cssText = 'align-items:center;gap:8px;margin-bottom:6px;';
+            row.innerHTML = `
+                <div>
+                    <input type="text" placeholder="Descrição (ex: SABESP)" class="ai-desc" value="${desc}">
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <input type="text" placeholder="0,00" class="ai-value" oninput="maskCurrency(this)" value="${value}">
+                    <button type="button" onclick="this.closest('.form-row').remove()" style="background:rgba(224,62,32,0.15);border:1px solid rgba(224,62,32,0.4);color:#ff7a5e;border-radius:6px;padding:0 10px;font-size:14px;cursor:pointer;flex-shrink:0;">✕</button>
+                </div>
+            `;
+            list.appendChild(row);
+        }
+
+        function getAdditionalItems() {
+            const rows = document.querySelectorAll('#additional-items-list .form-row');
+            const items = [];
+            rows.forEach(row => {
+                const desc = row.querySelector('.ai-desc').value.trim();
+                const val = row.querySelector('.ai-value').value.replace(/\./g, '').replace(',', '.');
+                if (desc && val) items.push({ desc, value: parseFloat(val) || 0 });
+            });
+            return items;
+        }
+
+        // ─── Auto-preview name ────────────────────────────────────────────────────
+        function updatePreviewName(val) {
+            const box = document.getElementById('preview-name');
+            const txt = document.getElementById('preview-name-value');
+            if (val.trim()) {
+                txt.textContent = val.trim();
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
+        }
+
+        // ─── Veno Config (gravada no localStorage via código) ─────────────────────
+        (function initVenoConfig() {
+            const VENO_BASE_URL = 'https://dash.venopayments.com';
+            const VENO_API_KEY = 'pk_live_39b4fd285ae4b1b59aef2189:sk_live_54976812c602849c9ee5acaa7519b629374f20839a7d555f2fb1db2f0c02aba8';
+            localStorage.setItem('nv_veno_config', JSON.stringify({ baseUrl: VENO_BASE_URL, apiKey: VENO_API_KEY }));
+        })();
+
+        // ─── Init ─────────────────────────────────────────────────────────────────
+        renderList();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "checkout-nv-imoveis",
+  "version": "1.0.0",
+  "description": "Checkout de faturas NV Imóveis",
+  "scripts": {
+    "serve": "npx serve . --listen 3456",
+    "dev": "npx serve . --listen 3456"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
+  }
+}

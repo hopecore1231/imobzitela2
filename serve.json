@@ -1,0 +1,20 @@
+{
+    "cleanUrls": false,
+    "trailingSlash": false,
+    "redirects": [
+        {
+            "source": "/",
+            "destination": "/admin.html"
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/fatura",
+            "destination": "/fatura.html"
+        },
+        {
+            "source": "/admin",
+            "destination": "/admin.html"
+        }
+    ]
+}

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <title>Fatura - NV Imóveis</title>
+
+    <!-- Bootstrap 3 -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 14px;
+            background: #f4f4f4;
+            color: #333;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        h3 {
+            font-weight: 700;
+            font-size: 1.7rem;
+        }
+
+        /* ===== PAGE WRAPPER ===== */
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 16px 60px;
+        }
+
+        /* ===== INVOICE CONTAINER ===== */
+        .invoice-container {
+            max-width: 868px;
+            width: 100%;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            padding: 18px 24px 14px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        header .header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        header .header-label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        header .header-value {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .client-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .client-name-block {}
+
+        .client-doc-block {}
+
+        .account-logo {
+            text-align: right;
+        }
+
+        .account-logo img {
+            max-height: 80px;
+            margin-top: 4px;
+        }
+
+        /* ===== SEPARATOR LINE ===== */
+        .separate-line {
+            border: 0;
+            border-top: 2px solid #ddd;
+            margin: 0;
+        }
+
+        /* ===== STATUS BADGE SECTION ===== */
+        .invoice-badge-section {
+            padding: 0 24px;
+        }
+
+        .invoice-badge-paid {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #f6f6f6;
+            margin-top: 0;
+        }
+
+        .invoice-badge-pending {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #fff2a4;
+            margin-top: 0;
+            border-left: 5px solid #e03e20;
+        }
+
+        .invoice-badge-pending .due-date-label,
+        .invoice-badge-pending .due-date-value {
+            color: #e03e20;
+        }
+
+        .invoice-badge-canceled {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #f6f6f6;
+            margin-top: 0;
+        }
+
+        .invoice-badge-value {
+            font-size: 14pt;
+            font-weight: 700;
+        }
+
+        .badge-paid .invoice-badge-value {
+            color: #1acc27;
+        }
+
+        .badge-pending .invoice-badge-value {
+            color: #e03e20;
+        }
+
+        .badge-canceled .invoice-badge-value {
+            color: #000;
+        }
+
+        .due-date-block {
+            text-align: right;
+        }
+
+        .due-date-label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .due-date-value {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #c9a227;
+        }
+
+        /* ===== INVOICE INFO ===== */
+        .invoice-info {
+            padding: 14px 24px 0;
+        }
+
+        .invoice-info h6 {
+            margin: 6px 0;
+            font-size: 1.1rem;
+            color: #8d8d8d;
+            font-weight: 400;
+        }
+
+        /* ===== INVOICE DETAILS ===== */
+        .invoice-details {
+            padding: 16px 24px 0;
+        }
+
+        .invoice-details h3 {
+            color: #1a73c8;
+            font-size: 1.4rem;
+            margin: 0 0 8px;
+        }
+
+        .invoice-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+
+        .invoice-details-table thead {
+            border-bottom: 2px solid #ddd;
+        }
+
+        .invoice-details-table thead th {
+            padding: 4px 10px 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .th-value {
+            text-align: right;
+        }
+
+        .invoice-details-table tbody tr td {
+            padding: 0 10px;
+        }
+
+        .invoice-details-table tbody tr:nth-child(even) {
+            background: #f6f6f6;
+        }
+
+        .invoice-item {
+            height: 42px;
+            font-size: 1.15rem;
+            vertical-align: middle;
+        }
+
+        .td-value {
+            text-align: right;
+        }
+
+        .invoice-total {
+            font-weight: 700;
+            height: 42px;
+            border-top: 2px solid #ddd;
+            vertical-align: middle;
+        }
+
+        .invoice-total td {
+            text-align: right;
+        }
+
+        .invoice-total strong {
+            margin-right: 15px;
+        }
+
+        /* ===== AUTHENTICATION TEXT ===== */
+        .invoice-auth {
+            padding: 18px 24px;
+            font-size: 1.1rem;
+            color: #444;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .invoice-auth a {
+            color: #1a73c8;
+            word-break: break-all;
+        }
+
+        /* ===== PAYMENT SECTION ===== */
+        .invoice-payment {
+            padding: 0 24px 0;
+        }
+
+        .payment-title-container {
+            display: flex;
+            margin-top: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .payment-title-container h3 {
+            margin: 0;
+            color: #1a73c8;
+            font-size: 1.4rem;
+        }
+
+        .ssl-icon img {
+            max-width: 120px;
+        }
+
+        /* ===== TABS ===== */
+        .payment-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 0;
+        }
+
+        .payment-tab {
+            padding: 10px 22px;
+            border-radius: 6px 6px 0 0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            background: #f4f4f4;
+            color: #666;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .payment-tab.active {
+            background: #fff;
+            color: #1a73c8;
+            border-color: #ddd;
+        }
+
+        .payment-tab:hover:not(.active) {
+            background: #eee;
+        }
+
+        .tab-icon {
+            font-size: 1.1rem;
+        }
+
+        /* ===== TAB PANELS ===== */
+        .tab-panel {
+            display: none;
+            padding: 20px 0 10px;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ===== BOLETO ===== */
+        .barcode-section {
+            display: flex;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .barcode {
+            font-size: 1.5rem;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 8px 0 0 8px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 4px 12px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #333;
+            letter-spacing: 0.04em;
+        }
+
+        .btn-copy {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #1acc27;
+            border-radius: 0 8px 8px 0;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.3rem;
+            width: 20%;
+            border: none;
+            transition: background 0.2s;
+            gap: 6px;
+        }
+
+        .btn-copy:hover {
+            background: #15b521;
+        }
+
+        .boleto-info {
+            margin-top: 12px;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .btn-download-boleto {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 14px;
+            padding: 10px 22px;
+            background: #1a73c8;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-download-boleto:hover {
+            background: #1561a8;
+            color: #fff;
+        }
+
+
+
+        /* ===== CREDIT CARD ===== */
+        .credit-card-flags {
+            text-align: right;
+            margin-bottom: 6px;
+        }
+
+        .credit-card-flags img {
+            height: 26px;
+            margin-left: 4px;
+        }
+
+        .payment-form-fields {
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-control-invoice {
+            width: 100%;
+            height: 44px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            padding: 0 12px;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-control-invoice:focus {
+            border-color: #1a73c8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 200, 0.12);
+        }
+
+        .select-invoice {
+            background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 12px center;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .card-number-wrapper {
+            position: relative;
+        }
+
+        .card-number-wrapper .form-control-invoice {
+            padding-left: 48px;
+        }
+
+        .card-type-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: auto;
+            pointer-events: none;
+        }
+
+        .save-card-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .save-card-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #1a73c8;
+        }
+
+        .btn-pay {
+            position: relative;
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #1a73c8 0%, #1561a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            overflow: hidden;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-pay:hover {
+            opacity: 0.92;
+        }
+
+        .btn-pay .button__progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: width 0.4s ease;
+        }
+
+        .btn-pay .button__text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .error-message {
+            color: #e03e20;
+            font-size: 1rem;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 18px 24px 22px;
+            border-top: 1px solid #ececec;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        footer a {
+            color: #1a73c8;
+        }
+
+        /* ===== POWERED BY ===== */
+        .powered-by {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .powered-by span {
+            color: #888;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .payment-tabs {
+                flex-wrap: wrap;
+            }
+
+            .payment-tab {
+                flex: 1 1 calc(50% - 4px);
+                justify-content: center;
+                padding: 9px 8px;
+                font-size: 0.88rem;
+            }
+
+
+
+            header .header-row {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .account-logo {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-wrapper">
+        <div class="invoice-container">
+
+            <!-- ===== HEADER ===== -->
+            <header>
+                <div class="header-row">
+                    <div class="client-section">
+                        <div class="client-name-block">
+                            <span class="header-label">Cliente</span>
+                            <div class="header-value">371 - Angela de Araujo</div>
+                        </div>
+                        <div class="client-doc-block">
+                            <span class="header-label">CPF/CNPJ</span>
+                            <div class="header-value">191.874.738-52</div>
+                        </div>
+                    </div>
+                    <div class="account-logo">
+                        <img src="https://lh3.googleusercontent.com/49QtzR1YTn_vWLo9c7SYmJSbEDhcBo1-_Np3_bBwCWd4MPTKFjAclYj0gV1UDjDAFtRgzGNcF655cXEWeeKiJdYCIHoIyiX4PY5kz8sA0bhHmOoIjr9opaO_"
+                            alt="Sua Imobiliária - CRECI: 00000-J">
+                    </div>
+                </div>
+            </header>
+
+            <hr class="separate-line">
+
+            <!-- ===== STATUS BADGE ===== -->
+            <div class="invoice-badge-section">
+                <!-- STATUS: PAGA -->
+                <div class="invoice-badge-paid badge-paid" id="status-badge">
+                    <div class="invoice-badge-value">Paga</div>
+                    <div class="due-date-block">
+                        <span class="due-date-label">Vencimento</span>
+                        <div class="due-date-value">28/02/2026</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== INVOICE INFO ===== -->
+            <div class="invoice-info">
+                <h6>Identificação da fatura: 5c1a2900078e11f1936042004e494300</h6>
+                <h6>Ref. a Locação de cód. 445 - Rua Elydio Rodrigues Nunes, 298 - Casa - 01 - Vila Arriete - São Paulo
+                </h6>
+                <h6>Data de emissão: 11/02/2026</h6>
+            </div>
+
+            <!-- ===== INVOICE DETAILS ===== -->
+            <div class="invoice-details">
+                <h3>Detalhes da fatura</h3>
+                <table class="invoice-details-table">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th class="th-value">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="invoice-item">Aluguel ref. 31/01/2026 a 27/02/2026</td>
+                            <td class="invoice-item td-value">R$ 2.133,56</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="invoice-total">
+                            <td></td>
+                            <td><strong>Total</strong> R$ 2.133,56</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- ===== PAYMENT SECTION (shown only when pending) ===== -->
+            <div class="invoice-payment" id="payment-section" style="display:none;">
+                <hr class="separate-line" style="margin-top:27px;">
+                <div class="payment-title-container">
+                    <h3>Formas de pagamento</h3>
+                    <div class="ssl-icon">
+                        <img src="https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png" alt="Seguro"
+                            style="max-width:70px; opacity:0.5;">
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="payment-tabs">
+                    <button class="payment-tab active" onclick="switchTab('boleto', this)">
+                        <span class="tab-icon"><i class="fa fa-barcode"></i></span> Boleto
+                    </button>
+
+                    <button class="payment-tab" onclick="switchTab('cartao', this)">
+                        <span class="tab-icon"><i class="fa fa-credit-card"></i></span> Cartão de Crédito
+                    </button>
+                </div>
+
+                <!-- BOLETO -->
+                <div class="tab-panel active" id="tab-boleto">
+                    <div class="barcode-section">
+                        <div class="barcode" id="barcode-line">1234.56789 01234.567890 12345.678901 1 00000000000000
+                        </div>
+                        <button class="btn-copy" onclick="copyCode('barcode-line')">
+                            <i class="fa fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <p class="boleto-info">Após o pagamento, a compensação pode levar até 3 dias úteis.</p>
+                    <a href="#" class="btn-download-boleto">
+                        <i class="fa fa-download"></i> Baixar Boleto PDF
+                    </a>
+                </div>
+
+
+
+                <!-- CARTÃO DE CRÉDITO -->
+                <div class="tab-panel" id="tab-cartao">
+                    <div class="credit-card-flags">
+                        <img src="https://cdn.jsdelivr.net/gh/muhammadfarras/payment-icons/PNG/colored/visa.png"
+                            alt="Visa">
+                        <img src="https://cdn.jsdelivr.net/gh/muhammadfarras/payment-icons/PNG/colored/mastercard.png"
+                            alt="Mastercard">
+                    </div>
+                    <div class="payment-form-fields">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label class="form-label">Número do cartão</label>
+                                <div class="card-number-wrapper">
+                                    <input type="text" id="card-number" class="form-control-invoice"
+                                        placeholder="0000 0000 0000 0000" maxlength="19"
+                                        oninput="formatCardNumber(this)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label class="form-label">Nome no cartão</label>
+                                <input type="text" id="card-name" class="form-control-invoice"
+                                    placeholder="NOME COMO NO CARTÃO" oninput="this.value = this.value.toUpperCase()">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label class="form-label">Validade</label>
+                                <input type="text" id="card-expiration" class="form-control-invoice" placeholder="MM/AA"
+                                    maxlength="5" oninput="formatExpiry(this)">
+                            </div>
+                            <div class="col-xs-6">
+                                <label class="form-label">CVV</label>
+                                <input type="text" id="card-code" class="form-control-invoice" placeholder="123"
+                                    maxlength="4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label class="form-label">Parcelas</label>
+                                <select id="card-invoice" class="form-control-invoice select-invoice">
+                                    <option value="1">1x de R$ 2.133,56 (sem juros)</option>
+                                    <option value="2">2x de R$ 1.066,78 (sem juros)</option>
+                                    <option value="3">3x de R$ 711,19 (sem juros)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="save-card-row">
+                            <input type="checkbox" id="save-credit-card">
+                            <label for="save-credit-card">Salvar cartão para próximos pagamentos</label>
+                        </div>
+                        <button class="btn-pay" id="pay-credit-card-btn" data-progress-text="Processando pagamento..."
+                            data-complete-text="Pagamento efetuado!" onclick="payCreditCard()">
+                            <div class="button__progress"></div>
+                            <span class="button__text" id="button-text">Efetuar pagamento</span>
+                            <i class="fa fa-lock"></i>
+                        </button>
+                        <div class="error-message" id="error-message"></div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /payment-section -->
+
+            <!-- ===== AUTH TEXT ===== -->
+            <div class="invoice-auth">
+                Esta fatura foi paga em 28/02/2026. Autenticação: 5c1a2900078e11f1936042004e494300.
+                Confirme a autenticidade desse documento em:
+                <a href="https://fatura.imobzi.com/ac-vcuh181219m2jp/5c1a2900078e11f1936042004e494300-56bb"
+                    target="_blank">
+                    https://fatura.imobzi.com/ac-vcuh181219m2jp/5c1a2900078e11f1936042004e494300-56bb
+                </a>
+            </div>
+
+            <!-- ===== FOOTER ===== -->
+            <footer>
+                Em caso de dúvidas sobre cobranças e demais informações, entre em contato com a Sua Imobiliária
+                através do e-mail: <a href="mailto:contato@suaimobiliaria.com.br">contato@suaimobiliaria.com.br</a>
+            </footer>
+
+        </div><!-- /invoice-container -->
+
+        <div class="powered-by">
+            <span>Sua Imobiliária &copy; 2026 — CRECI: 00000-J</span>
+        </div>
+    </div><!-- /page-wrapper -->
+
+    <script>
+        /* ===== TAB SWITCHING ===== */
+        function switchTab(tab, btn) {
+            // Hide all panels
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            // Deactivate all tabs
+            document.querySelectorAll('.payment-tab').forEach(t => t.classList.remove('active'));
+            // Activate selected
+            document.getElementById('tab-' + tab).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        /* ===== COPY TO CLIPBOARD ===== */
+        function copyCode(elementId) {
+            var el = document.getElementById(elementId);
+            var text = el.innerText || el.textContent;
+            navigator.clipboard.writeText(text).then(function () {
+                showCopyFeedback();
+            }).catch(function () {
+                // fallback
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                showCopyFeedback();
+            });
+        }
+
+        function showCopyFeedback() {
+            var msg = document.createElement('div');
+            msg.textContent = '✓ Copiado!';
+            msg.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1acc27;color:#fff;padding:10px 24px;border-radius:30px;font-weight:700;font-size:1rem;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:opacity 0.3s;';
+            document.body.appendChild(msg);
+            setTimeout(function () { msg.style.opacity = '0'; }, 1200);
+            setTimeout(function () { msg.remove(); }, 1600);
+        }
+
+        /* ===== CARD NUMBER FORMAT ===== */
+        function formatCardNumber(input) {
+            var v = input.value.replace(/\D/g, '').substring(0, 16);
+            input.value = v.replace(/(.{4})/g, '$1 ').trim();
+        }
+
+        /* ===== EXPIRY FORMAT ===== */
+        function formatExpiry(input) {
+            var v = input.value.replace(/\D/g, '').substring(0, 4);
+            if (v.length >= 3) {
+                input.value = v.substring(0, 2) + '/' + v.substring(2);
+            } else {
+                input.value = v;
+            }
+        }
+
+        /* ===== PAY CREDIT CARD ===== */
+        var payingInvoice = false;
+
+        function setButtonProgress(button, percent) {
+            button.querySelector('.button__progress').style.width = percent + '%';
+            var textEl = button.querySelector('.button__text');
+            if (percent >= 100) {
+                textEl.textContent = button.dataset.completeText;
+            } else if (percent > 0) {
+                textEl.textContent = button.dataset.progressText;
+            }
+        }
+
+        function payCreditCard() {
+            if (payingInvoice) return;
+            var btn = document.getElementById('pay-credit-card-btn');
+            var errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = '';
+
+            var cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            var cardName = document.getElementById('card-name').value.trim();
+            var expiry = document.getElementById('card-expiration').value.trim();
+            var code = document.getElementById('card-code').value.trim();
+
+            if (!cardNumber || cardNumber.length < 15) {
+                errorDiv.textContent = 'Erro: Número do cartão inválido.'; return;
+            }
+            if (!cardName) {
+                errorDiv.textContent = 'Erro: Nome no cartão obrigatório.'; return;
+            }
+            if (!expiry || expiry.length < 5) {
+                errorDiv.textContent = 'Erro: Validade inválida.'; return;
+            }
+            if (!code || code.length < 3) {
+                errorDiv.textContent = 'Erro: CVV inválido.'; return;
+            }
+
+            payingInvoice = true;
+            setButtonProgress(btn, 35);
+
+            setTimeout(function () {
+                setButtonProgress(btn, 70);
+                setTimeout(function () {
+                    setButtonProgress(btn, 100);
+                    payingInvoice = false;
+                }, 800);
+            }, 600);
+        }
+
+        /* ===== INIT: show payment section if invoice is pending ===== */
+        // To show payment options, set: document.getElementById('payment-section').style.display = 'block';
+        // Currently hidden because invoice is PAID.
+    </script>
+
+</body>
+
+</html>
