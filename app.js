@@ -235,6 +235,20 @@ const STATUS_LABEL = { pendente: 'Pendente', paga: 'Paga', cancelada: 'Cancelada
 const STATUS_COLOR = { pendente: '#e03e20', paga: '#1acc27', cancelada: '#999' };
 const STATUS_BG = { pendente: '#fff2a4', paga: '#f6f6f6', cancelada: '#f0f0f0' };
 
+// ─── Edge Function Invoker ───────────────────────────────────────────────────
+
+async function invokeFunction(functionName, body) {
+    const sb = getSupabaseClient();
+    const { data, error } = await sb.functions.invoke(functionName, {
+        body: body
+    });
+    if (error) {
+        console.error(`Erro ao invocar ${functionName}:`, error);
+        throw error;
+    }
+    return data;
+}
+
 // ─── Exports (acessíveis globalmente) ────────────────────────────────────────
 
 window.NV = {
@@ -245,6 +259,7 @@ window.NV = {
     updateStatus,
     updateInvoice,
     generateInvoiceURL,
+    invokeFunction,
     formatCurrency,
     formatDate,
     STATUS_LABEL,

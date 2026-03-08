@@ -1,0 +1,21 @@
+=== BUSCANDO LIMITE DE VALOR DA API ===
+
+R$     100.00 (   10000 centavos) => OK
+   PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somossimpay.com.br/v2/qr/cob/8cd8d3...
+R$     500.00 (   50000 centavos) => OK
+   PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somossimpay.com.br/v2/qr/cob/15a65e...
+R$    1000.00 (  100000 centavos) => OK
+   PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somossimpay.com.br/v2/qr/cob/6151a9...
+R$    2000.00 (  200000 centavos) => FALHA (500)
+
+--- Refinando entre R$ 1000.00 e R$ 2000.00 ---
+R$    1500.00 (  150000 centavos) => FALHA (500)
+R$    1250.00 (  125000 centavos) => FALHA (500)
+R$    1125.00 (  112500 centavos) => FALHA (500)
+R$    1062.50 (  106250 centavos) => FALHA (500)
+
+=== RESULTADO ===
+Limite maximo encontrado: aproximadamente R$ 1000.00
+Primeiro valor que falha: R$ 1062.50
+
+=== FIM ===

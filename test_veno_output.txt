@@ -1,0 +1,84 @@
+=== TESTE API VENO PAYMENTS ===
+
+
+--- Testando R$ 100.00 (10000 centavos) ---
+Payload: {
+  "amount": 10000,
+  "external_id": "teste-venv-1772838133385-10000",
+  "description": "Teste Veno Payments R$ 100.00",
+  "payer": {
+    "name": "Jo├úo Silva Teste",
+    "email": "joao.teste@email.com",
+    "document": "52998224725"
+  }
+}
+Status: 201
+>>> SUCESSO! <<<
+ID: 019cc563-2494-70b1-ba42-d3834d02b828
+PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somos...
+
+--- Testando R$ 2900.00 (290000 centavos) ---
+Payload: {
+  "amount": 290000,
+  "external_id": "teste-venv-1772838137186-290000",
+  "description": "Teste Veno Payments R$ 2900.00",
+  "payer": {
+    "name": "Jo├úo Silva Teste",
+    "email": "joao.teste@email.com",
+    "document": "52998224725"
+  }
+}
+Status: 201
+>>> SUCESSO! <<<
+ID: 019cc563-3189-77d9-a181-843a1c18afd1
+PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somos...
+
+--- Testando R$ 3000.00 (300000 centavos) ---
+Payload: {
+  "amount": 300000,
+  "external_id": "teste-venv-1772838140698-300000",
+  "description": "Teste Veno Payments R$ 3000.00",
+  "payer": {
+    "name": "Jo├úo Silva Teste",
+    "email": "joao.teste@email.com",
+    "document": "52998224725"
+  }
+}
+Status: 201
+>>> SUCESSO! <<<
+ID: 019cc563-3f40-7762-8546-8c9a46cebf53
+PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somos...
+
+--- Testando R$ 3100.00 (310000 centavos) ---
+Payload: {
+  "amount": 310000,
+  "external_id": "teste-venv-1772838143787-310000",
+  "description": "Teste Veno Payments R$ 3100.00",
+  "payer": {
+    "name": "Jo├úo Silva Teste",
+    "email": "joao.teste@email.com",
+    "document": "52998224725"
+  }
+}
+Status: 201
+>>> SUCESSO! <<<
+ID: 019cc563-4b51-7473-93af-efcde4cffd80
+PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somos...
+
+--- Testando R$ 4500.00 (450000 centavos) ---
+Payload: {
+  "amount": 450000,
+  "external_id": "teste-venv-1772838146919-450000",
+  "description": "Teste Veno Payments R$ 4500.00",
+  "payer": {
+    "name": "Jo├úo Silva Teste",
+    "email": "joao.teste@email.com",
+    "document": "52998224725"
+  }
+}
+Status: 201
+>>> SUCESSO! <<<
+ID: 019cc563-578d-7884-acbe-6f974fd869b9
+PIX: 00020101021226940014br.gov.bcb.pix2572qrcode.somos...
+
+=== FIM DOS TESTES ===

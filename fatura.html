@@ -16,6 +16,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca Frontend QR Code (node-qrcode) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         /* ===== BASE ===== */
@@ -433,9 +435,53 @@
             color: #666;
         }
 
+        /* ===== BOTÃO GERAR PIX ===== */
+        .btn-gerar-pix {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 250px;
+            margin: 20px auto;
+            padding: 12px 24px;
+            background: #1acc27;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 204, 39, 0.35);
+        }
+
+        .btn-gerar-pix:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(26, 204, 39, 0.45);
+            background: #15b521;
+        }
+
+        .btn-gerar-pix:active {
+            transform: translateY(0);
+        }
+
+        .btn-gerar-pix:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-gerar-pix .pix-icon {
+            width: 28px;
+            height: 28px;
+        }
+
         /* ===== PIX QR CODE ===== */
         .pix-qrcode-container {
-            width: 55%;
+            width: 100%;
+            max-width: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -787,9 +833,10 @@
             }
 
             .payment-title-container {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 10px;
-                align-items: flex-start;
+                align-items: center;
+                justify-content: space-between;
             }
 
             .payment-title-container h3 {
@@ -998,6 +1045,37 @@
             }, 600);
         }
 
+        // ─── Variável global para dados da fatura (usado pelo botão Gerar Pix) ──
+        var _currentInvoice = null;
+
+        // ─── Gerar Pix: Clique do botão ──────────────────────────────────────────
+        async function onGerarPixClick() {
+            const btn = document.getElementById('btn-gerar-pix');
+            const btnArea = document.getElementById('pix-btn-area');
+            const tabPix = document.getElementById('tab-pix');
+
+            // Desabilitar botão e mostrar loading
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Gerando Pix...';
+            }
+
+            // Mostrar área do QR code com spinner
+            if (tabPix) tabPix.style.display = 'block';
+
+            // Calcular total
+            const inv = _currentInvoice;
+            if (!inv) return;
+            const additionalItems = inv.additionalItems || [];
+            const total = (parseFloat(inv.value) || 0) + additionalItems.reduce((s, it) => s + (parseFloat(it.value) || 0), 0);
+
+            // Chamar edge function
+            await loadPixPanel(inv, total);
+
+            // Esconder o botão após gerar
+            if (btnArea) btnArea.style.display = 'none';
+        }
+
         // ─── PIX: Chamar Edge Function e renderizar QR Code ───────────────────
         async function loadPixPanel(inv, total) {
             const qrImg = document.getElementById('pix-qr-img');
@@ -1005,46 +1083,91 @@
             const pixCodeEl = document.getElementById('pix-code');
             if (!qrImg || !pixCodeEl) return;
 
-            try {
-                const SUPABASE_URL = 'https://duuhuypxprwmvolexpnd.supabase.co';
-                const SUPABASE_ANON_KEY = 'sb_publishable_mWsAUGvAvCHydSHqSjrJaQ_01krsnx5';
+            // Garantir que a área esteja visível
+            const tabPix = document.getElementById('tab-pix');
+            if (tabPix) tabPix.style.display = 'block';
 
-                const resp = await fetch(`${SUPABASE_URL}/functions/v1/pagnet_pix`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    },
-                    body: JSON.stringify({ amount: Math.round(total * 100) })
+            const retryBtnHtml = 'Tentar Novamente';
+
+            function showRetryButton() {
+                const btnArea = document.getElementById('pix-btn-area');
+                if (btnArea) {
+                    btnArea.style.display = 'block';
+                    const btn = document.getElementById('btn-gerar-pix');
+                    if (btn) { btn.disabled = false; btn.innerHTML = retryBtnHtml; }
+                }
+                if (tabPix) tabPix.style.display = 'none';
+            }
+
+            try {
+                const data = await window.NV.invokeFunction('create-pix', {
+                    amount: Math.round(total * 100)
                 });
 
-                if (!resp.ok) {
-                    const errText = await resp.text();
-                    console.warn('[PIX] Erro HTTP', resp.status, errText);
-                    pixCodeEl.textContent = 'Erro ao gerar PIX. Tente novamente.';
+                if (!data || data.error || data.success === false) {
+                    console.warn('[PIX] Erro Supabase', data);
+                    pixCodeEl.textContent = (data && data.error) ? data.error : 'Erro ao gerar PIX.';
                     if (qrSpinner) qrSpinner.style.display = 'none';
+                    showRetryButton();
                     return;
                 }
 
-                const data = await resp.json();
-                // Campo QR Code: pix.qrcode ou pix.qrCode ou pix.qr_code
-                const pixCode = data.pix && (data.pix.qrcode || data.pix.qrCode || data.pix.qr_code);
+                // A nova API do Backend (Veno) retorna o texto payload Copia e Cola corretamente
+                const pixCode = data.pix_copy_paste;
+                console.log('[PIX] Retorno da Edge Function:', data);
+                console.log('[PIX] Valor do pix_copy_paste:', pixCode);
+                console.log('[PIX] window.QRCode disponivel?', typeof QRCode !== 'undefined');
 
                 if (pixCode) {
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=${encodeURIComponent(pixCode)}`;
-                    qrImg.src = qrUrl;
-                    qrImg.style.display = 'block';
+                    try {
+                        const qrContainerEl = document.getElementById('pix-qr-img');
+                        console.log('[PIX] Elemento container do QR existe?', !!qrContainerEl);
+
+                        // Usa a biblioteca adicionada no header para desenhar a imagem do QR
+                        if (typeof QRCode !== 'undefined') {
+                            qrImg.style.display = 'none';
+
+                            let renderDiv = document.getElementById('qrcode-render-area');
+                            if (!renderDiv) {
+                                renderDiv = document.createElement('div');
+                                renderDiv.id = 'qrcode-render-area';
+                                renderDiv.style.display = 'flex';
+                                renderDiv.style.justifyContent = 'center';
+                                qrImg.parentNode.appendChild(renderDiv);
+                            }
+
+                            renderDiv.innerHTML = '';
+
+                            new QRCode(renderDiv, {
+                                text: pixCode,
+                                width: 200,
+                                height: 200,
+                                colorDark: "#000000",
+                                colorLight: "#ffffff",
+                                correctLevel: QRCode.CorrectLevel.M
+                            });
+
+                            pixCodeEl.textContent = pixCode;
+                        } else {
+                            throw new Error("Biblioteca QRCode externa nao carregou.");
+                        }
+                    } catch (err) {
+                        console.error('Erro lib QRCode frontend:', err);
+                        qrImg.style.display = 'none';
+                        pixCodeEl.innerHTML = '<span style="color:red">Não foi possível gerar o QR Code. Use o código copia e cola abaixo.</span><br><br>' + pixCode;
+                    }
+
                     if (qrSpinner) qrSpinner.style.display = 'none';
-                    pixCodeEl.textContent = pixCode;
                 } else {
-                    console.warn('[PIX] Resposta sem QR code:', data);
-                    pixCodeEl.textContent = 'QR Code não disponível.';
+                    console.warn('[PIX] Resposta sem Copia e Cola:', data);
+                    pixCodeEl.textContent = 'QR Code e Copia-e-Cola não disponíveis na Veno.';
                     if (qrSpinner) qrSpinner.style.display = 'none';
                 }
             } catch (err) {
                 console.warn('[PIX] Falha na requisição:', err);
                 pixCodeEl.textContent = 'Erro de conexão. Tente novamente.';
                 if (qrSpinner) qrSpinner.style.display = 'none';
+                showRetryButton();
             }
         }
 
@@ -1096,7 +1219,14 @@
                             <h3>A Fatura será paga através de Pix</h3>
                             ${lockIcon}
                         </div>
-                        <div class="tab-panel active" id="tab-pix" style="display:block;padding-top:10px;">
+                        <!-- Botão Gerar Pix -->
+                        <div id="pix-btn-area" style="padding:10px 0 20px;">
+                            <button class="btn-gerar-pix" id="btn-gerar-pix" onclick="onGerarPixClick()">
+                                Gerar Pix
+                            </button>
+                        </div>
+                        <!-- QR Code container (escondido inicialmente) -->
+                        <div class="tab-panel" id="tab-pix" style="display:none;padding-top:10px;">
                             <div class="pix-qrcode-container">
                                 <div class="pix-qrcode-title">Escaneie o QR Code para pagar</div>
                                 <div class="pix-qrcode">
@@ -1288,12 +1418,9 @@
                 poweredBy.innerHTML = `${cName} &copy; 2026 &mdash; CRECI: ${cCreci}`;
             }
 
-            // Se fatura pendente + pix: carregar QR Code via Edge Function
+            // Guardar referência da fatura para o botão Gerar Pix
             if (inv.status === 'pendente' && (inv.paymentMethod || 'pix').toLowerCase() === 'pix') {
-                const additionalItems = inv.additionalItems || [];
-                const total = (parseFloat(inv.value) || 0) +
-                    additionalItems.reduce((s, it) => s + (parseFloat(it.value) || 0), 0);
-                await loadPixPanel(inv, total);
+                _currentInvoice = inv;
             }
         }
 
